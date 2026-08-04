@@ -3,7 +3,7 @@ import type { Ctx } from "../bot.js";
 import { createLead, type Lead } from "../lead-store.js";
 import { adminChatId, inlineButton, inlineKeyboard, registerMainMenuItem } from "../toolkit/index.js";
 
-registerMainMenuItem({ label: "Submit a lead", data: "submit_lead:start", order: 10 });
+registerMainMenuItem({ label: "Submit request", data: "submit_lead:start", order: 10 });
 
 type Step = "name" | "phone" | "note" | "confirm" | undefined;
 type LeadFlow = { leadStep?: Step; editing?: boolean; name?: string; phone?: string; intent?: Lead["intent"]; note?: string };

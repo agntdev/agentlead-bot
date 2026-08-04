@@ -4,7 +4,7 @@
     "steps": [
       {
         "send": { "text": "/help" },
-        "expect": [{ "method": "sendMessage", "payload": { "text": "Use Submit a lead to share your property plans.\n\nThe agent can open Owner from the main menu." } }]
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Use Submit request to share your property plans.\n\nThe agent can open Owner from the main menu." } }]
       }
     ]
   },

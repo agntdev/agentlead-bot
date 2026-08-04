@@ -8,7 +8,7 @@ import { inlineButton, inlineKeyboard } from "../toolkit/index.js";
 // main menu (`menu:help`). Enhance the copy for your specific bot; keep it short.
 const composer = new Composer<Ctx>();
 
-const HELP = "Use Submit a lead to share your property plans.\n\nThe agent can open Owner from the main menu.";
+const HELP = "Use Submit request to share your property plans.\n\nThe agent can open Owner from the main menu.";
 
 const backToMenu = inlineKeyboard([[inlineButton("⬅️ Back to menu", "menu:main")]]);
 
