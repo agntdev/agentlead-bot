@@ -83,4 +83,14 @@ describe("resolveSessionStorage (auto-select)", () => {
     expect(url).toBe("redis://r:6379");
     expect(got).toBe(redisStore);
   });
+
+  it("ignores an HTTP endpoint so session middleware stays available", () => {
+    let made = false;
+    const got = resolveSessionStorage<Sess>(undefined, { REDIS_URL: "https://storage.example/worker" }, () => {
+      made = true;
+      return new MemorySessionStorage<Sess>();
+    });
+    expect(made).toBe(false);
+    expect(got).toBeInstanceOf(MemorySessionStorage);
+  });
 });

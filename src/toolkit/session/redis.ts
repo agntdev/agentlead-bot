@@ -117,6 +117,11 @@ export function resolveSessionStorage<S extends object>(
   make: (url: string) => StorageAdapter<S> = defaultRedisStorage,
 ): StorageAdapter<S> {
   if (explicit) return explicit;
-  if (env.REDIS_URL) return make(env.REDIS_URL);
+  // A Redis client speaks RESP over a redis:// or rediss:// socket. A mistaken
+  // HTTP Worker/REST endpoint otherwise makes session middleware fail on every
+  // incoming update (and prevents the bot from handling even /start).
+  if (env.REDIS_URL && /^(redis|rediss):\/\//i.test(env.REDIS_URL)) {
+    return make(env.REDIS_URL);
+  }
   return new MemorySessionStorage<S>();
 }
