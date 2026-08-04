@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Owner",
+    "steps": [
+      {
+        "expect": [
+          {
+            "method": "sendMessage",
+            "payload": {
+              "text": "Open the private leads dashboard for the agent"
+            }
+          }
+        ],
+        "send": {
+          "callback": "owner:dashboard"
+        }
+      }
+    ]
+  }
+]
