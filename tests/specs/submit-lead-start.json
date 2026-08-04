@@ -1,19 +1,42 @@
 [
   {
-    "name": "Submit a lead",
+    "name": "Submit a complete lead through the confirmation screen",
     "steps": [
       {
-        "expect": [
-          {
-            "method": "sendMessage",
-            "payload": {
-              "text": "Start the lead submission flow for visitors"
-            }
-          }
-        ],
-        "send": {
-          "callback": "submit_lead:start"
-        }
+        "send": { "callback": "submit_lead:start" },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Tell us a little about your property plans." } }]
+      },
+      {
+        "send": { "text": "Alex Morgan" },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Share your phone number, or type it below." } }]
+      },
+      {
+        "send": { "text": "+15551234567" },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "What can we help you with?" } }]
+      },
+      {
+        "send": { "callback": "lead:intent:buy" },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Add a short note about what you need." } }]
+      },
+      {
+        "send": { "text": "Looking for a two-bedroom home." },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Please review your lead:\nName: Alex Morgan\nPhone: +15551234567\nIntent: buy\nNote: Looking for a two-bedroom home." } }]
+      },
+      {
+        "send": { "callback": "lead:edit" },
+        "expect": [{ "method": "editMessageText", "payload": { "text": "Choose what you want to change." } }]
+      },
+      {
+        "send": { "callback": "lead:edit:note" },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Add a short note about what you need." } }]
+      },
+      {
+        "send": { "text": "Looking near the park." },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Please review your lead:\nName: Alex Morgan\nPhone: +15551234567\nIntent: buy\nNote: Looking near the park." } }]
+      },
+      {
+        "send": { "callback": "lead:confirm" },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Lead submissions aren't available right now. Please try again shortly." } }]
       }
     ]
   }

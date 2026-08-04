@@ -45,6 +45,17 @@ export interface WorkerEnv {
   BOT_TELEMETRY_SALT?: string;
 }
 
+/** A persistent lead record stored in the singleton leads Durable Object. */
+export interface StoredLead {
+  id: string;
+  name: string;
+  phone: string;
+  intent: "buy" | "rent" | "sell";
+  note: string;
+  status: "new" | "done";
+  created_at: string;
+}
+
 interface Reminder {
   at: number; // epoch ms
   chatId: number | string;
@@ -152,6 +163,50 @@ export class ChatDO {
       await this.state.storage.put("reminders", list);
       await this.rearm(list);
       return new Response(null, { status: 204 });
+    }
+
+    // Durable domain records use an explicit ordered index. This deliberately
+    // never enumerates Durable Object storage, which would become unbounded as
+    // the agent receives more leads.
+    if (url.pathname === "/leads" && request.method === "POST") {
+      const lead = (await request.json()) as StoredLead;
+      const ids = (await this.state.storage.get<string[]>("lead:index")) ?? [];
+      if (!ids.includes(lead.id)) {
+        ids.unshift(lead.id);
+        await this.state.storage.put({ [`lead:${lead.id}`]: lead, "lead:index": ids });
+      }
+      return Response.json(lead);
+    }
+
+    if (url.pathname === "/leads" && request.method === "GET") {
+      const page = Math.max(0, Number(url.searchParams.get("page") ?? "0") || 0);
+      const ids = (await this.state.storage.get<string[]>("lead:index")) ?? [];
+      const pageIds = ids.slice(page * 20, page * 20 + 20);
+      const leads: StoredLead[] = [];
+      for (const id of pageIds) {
+        const lead = await this.state.storage.get<StoredLead>(`lead:${id}`);
+        if (lead) leads.push(lead);
+      }
+      return Response.json({ leads, total: ids.length, page });
+    }
+
+    if (url.pathname === "/lead" && request.method === "GET") {
+      const id = url.searchParams.get("id");
+      if (!id) return new Response("missing id", { status: 400 });
+      const lead = await this.state.storage.get<StoredLead>(`lead:${id}`);
+      return lead ? Response.json(lead) : new Response("not found", { status: 404 });
+    }
+
+    if (url.pathname === "/lead" && request.method === "PATCH") {
+      const body = (await request.json()) as { id?: string; status?: StoredLead["status"] };
+      if (!body.id || (body.status !== "new" && body.status !== "done")) {
+        return new Response("invalid lead", { status: 400 });
+      }
+      const lead = await this.state.storage.get<StoredLead>(`lead:${body.id}`);
+      if (!lead) return new Response("not found", { status: 404 });
+      const updated = { ...lead, status: body.status };
+      await this.state.storage.put(`lead:${body.id}`, updated);
+      return Response.json(updated);
     }
 
     return new Response("not found", { status: 404 });

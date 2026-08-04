@@ -1,19 +1,10 @@
 [
   {
-    "name": "/leads",
+    "name": "/leads denies access when owner access is not configured",
     "steps": [
       {
-        "expect": [
-          {
-            "method": "sendMessage",
-            "payload": {
-              "text": "Open the private leads dashboard for the agent"
-            }
-          }
-        ],
-        "send": {
-          "text": "/leads"
-        }
+        "send": { "text": "/leads" },
+        "expect": [{ "method": "sendMessage", "payload": { "text": "Owner access isn't set up yet." } }]
       }
     ]
   }
